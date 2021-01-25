@@ -1,0 +1,28 @@
+{
+  "name": "pbft-wallet",
+  "version": "1.0.0",
+  "description": "implementing a transaction function to test pbft",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ipdmartins/HyperledgerPBFT.git"
+  },
+  "keywords": [
+    "hyperledger",
+    "sawtooth",
+    "wallet",
+    "pbft"
+  ],
+  "author": "Igor Martins",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ipdmartins/HyperledgerPBFT/issues"
+  },
+  "homepage": "https://github.com/ipdmartins/HyperledgerPBFT#readme",
+  "dependencies": {
+    "sawtooth-sdk": "^1.0.5"
+  }
+}
