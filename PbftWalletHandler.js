@@ -1,22 +1,16 @@
 const { TransactionHandler } = require('sawtooth-sdk/processor/handler');
 const { InvalidTransaction, InternalError } = require('sawtooth-sdk/processor/exceptions')
 
-const crypto = require('crypto');
-
-const hash = (input) => crypto.createHash('sha512')
-  .update(input)
-  .digest('hex')
-  .toLowerCase().substring(0, 64);
+const {SW_FAMILY, SW_NAMESPACE, SW_VERSION, hash} = require('./env')
 
 const MIN_VALUE = 0;
-const {SW_FAMILY, SW_NAMESPACE, SW_VERSION} = require('./env')
 
 function encoder(word) {
   return btoa(word);
 }
 
 function decoder(word) {
-  return atob(word);
+  return atob(word);  
 }
 
 //function to obtain the payload obtained from the client
@@ -110,7 +104,6 @@ class PbftWalletHandler extends TransactionHandler {
       .then((update) => {
         let header = transactionProcessRequest.header
         let userPublicKey = header.signerPublicKey
-        let action = update.action
 
         if (!update.action) {
           throw new InvalidTransaction('Action is required')

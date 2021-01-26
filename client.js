@@ -1,3 +1,4 @@
+const axios = require('axios').default
 const {createContext, CryptoFactory} = require('sawtooth-sdk/signing')
 const {createHash} = require('crypto')
 const {protobuf} = require('sawtooth-sdk')
@@ -66,3 +67,13 @@ const batch = protobuf.Batch.create({
 const batchListBytes = protobuf.BatchList.encode({
     batches: [batch]
 }).finish()
+
+
+
+axios.post('http://localhost:8008/batches', batchListBytes, {
+    headers: {'Content-Type': 'application/octet-stream'}
+}).then(Response => {
+    console.log(Response.data)
+}).catch(error => {
+    console.log(error)
+})
