@@ -4,7 +4,8 @@
   "description": "implementing a transaction function to test pbft",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js tcp://validator:4004"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "cbor": "^6.0.1",
+    "express": "^4.17.1",
     "sawtooth-sdk": "^1.0.5"
   }
 }

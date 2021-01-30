@@ -1,7 +1,7 @@
 const { TransactionHandler } = require('sawtooth-sdk/processor/handler');
 const { InvalidTransaction, InternalError } = require('sawtooth-sdk/processor/exceptions')
 
-const {SW_FAMILY, SW_NAMESPACE, SW_VERSION, hash} = require('./env')
+const {SW_FAMILY, SW_NAMESPACE, SW_VERSION, hash} = require('../env')
 
 const MIN_VALUE = 0;
 
@@ -56,11 +56,10 @@ const makeTransfer = (context, senderAddress, amount, receiverAddress) => (possi
     throw new InvalidTransaction('Amount is invalid')
   }
 
+  let senderBalance;
   let currentEntry = possibleAddressValues[senderAddress];
   let currentEntryTo = possibleAddressValues[receiverAddress];
-  let senderBalance;
   let senderNewBalance = 0;
-
   let receiverBalance;
   let receiverNewBalance = 0;
 
@@ -78,7 +77,7 @@ const makeTransfer = (context, senderAddress, amount, receiverAddress) => (possi
   receiverBalance = parseInt(receiverBalance)
 
   if (senderBalance < amount) {
-    throw new InvalidTransaction("Not enough money to perform transfer operation")
+    throw new InvalidTransaction("Not eno ugh money to perform transfer operation")
   } else {
     console.log("Debiting amount from the sender:" + amount);
     senderNewBalance = senderBalance - amount;

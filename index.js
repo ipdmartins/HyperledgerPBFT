@@ -1,2 +1,0 @@
-require('./contract')
-require('./client')
