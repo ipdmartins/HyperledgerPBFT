@@ -3,7 +3,10 @@ const { InvalidTransaction, InternalError } = require('sawtooth-sdk/processor/ex
 
 const { SW_FAMILY, SW_NAMESPACE, SW_VERSION, hash } = require('../env')
 
-const MIN_VALUE = 0;
+// Constants defined in intkey specification
+const MIN_VALUE = 0
+const MAX_VALUE = 4294967295
+const MAX_NAME_LENGTH = 20
 
 function encoder(word) {
   return btoa(word);

@@ -1,10 +1,7 @@
 const crypto = require('crypto');
 
-const hash = (input) => crypto.createHash('sha512')
-  .update(input)
-  .digest('hex')
-  .toLowerCase()
-  .substring(0, 64);
+const hash = (x) =>
+  crypto.createHash('sha512').update(x).digest('hex').toLowerCase()
 
 const SW_FAMILY = 'PBFTwallet';
 const SW_NAMESPACE = hash(SW_FAMILY).substring(0, 6);

@@ -1,0 +1,30 @@
+
+version: "2.1"
+
+services:
+
+  xo-tp:
+    build: ./
+    image: js-sdk-xo-tp:$ISOLATION_ID
+    volumes:
+      - ../:/project/sawtooth-sdk-javascript
+    working_dir: /project/sawtooth-sdk-javascript
+    command: |
+      bash -c "
+        ./bin/build_sdk \
+        && ./bin/build_xo
+      "
+    stop_signal: SIGKILL
+
+  intkey-tp:
+    build: ./
+    image: js-sdk-intkey-tp:$ISOLATION_ID
+    volumes:
+      - ../:/project/sawtooth-sdk-javascript
+    working_dir: /project/sawtooth-sdk-javascript
+    command: |
+      bash -c "
+        ./bin/build_sdk \
+        && ./bin/build_intkey
+      "
+    stop_signal: SIGKILL
