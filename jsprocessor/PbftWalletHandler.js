@@ -1,7 +1,7 @@
 const { TransactionHandler } = require('sawtooth-sdk/processor/handler');
 const { InvalidTransaction, InternalError } = require('sawtooth-sdk/processor/exceptions')
 
-const {SW_FAMILY, SW_NAMESPACE, SW_VERSION, hash} = require('./env')
+const {SW_FAMILY, SW_NAMESPACE, SW_VERSION, hash} = require('../env')
 
 const MIN_VALUE = 0;
 

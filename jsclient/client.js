@@ -4,7 +4,7 @@ const {createHash} = require('crypto')
 const {protobuf} = require('sawtooth-sdk')
 const cbor = require('cbor')
 
-const {SW_FAMILY, SW_NAMESPACE, SW_VERSION, hash} = require('./env')
+const {SW_FAMILY, SW_NAMESPACE, SW_VERSION, hash} = require('../env')
 const context = createContext('secp256k1')
 const privateKey = context.newRandomPrivateKey()
 const signer = new CryptoFactory(context).newSigner(privateKey)
