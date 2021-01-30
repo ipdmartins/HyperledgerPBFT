@@ -27,6 +27,8 @@
     "axios": "^0.21.1",
     "cbor": "^6.0.1",
     "express": "^4.17.1",
+    "express-handlebars": "^5.2.0",
+    "node-fetch": "^2.6.1",
     "sawtooth-sdk": "^1.0.5"
   }
 }

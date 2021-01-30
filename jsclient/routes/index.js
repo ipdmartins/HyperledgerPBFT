@@ -2,7 +2,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var router = express.Router();
-var {SimpleWalletClient} = require('./SimpleWalletClient') 
+var {PbftWalletClient} = require('./PbftWalletClient') 
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
@@ -50,8 +50,8 @@ router.post('/login', urlencodedParser, function(req, res){
 router.post('/deposit', function(req, res) {
     var userId = req.body.userId;
     var amount = req.body.money;
-    var SimpleWalletClient1 = new SimpleWalletClient(userId); 
-    SimpleWalletClient1.deposit(amount);    
+    var PbftWalletClient1 = new PbftWalletClient(userId); 
+    PbftWalletClient1.deposit(amount);    
     res.send({message:"Amount "+ amount +" successfully added"});
 });
 
@@ -59,8 +59,8 @@ router.post('/deposit', function(req, res) {
 router.post('/withdraw', function(req, res) {
     var userId = req.body.userId;
     var amount = req.body.money;
-    var SimpleWalletClient1 = new SimpleWalletClient(userId);   
-    SimpleWalletClient1.withdraw(amount);     
+    var PbftWalletClient1 = new PbftWalletClient(userId);   
+    PbftWalletClient1.withdraw(amount);     
     res.send({  message:"Amount "+ amount +" successfully deducted"});
 });
 
@@ -69,14 +69,14 @@ router.post('/transfer', function(req, res) {
     var userId = req.body.userId;
     var beneficiary = req.body.beneficiary;
     var amount = req.body.money;
-    var client = new SimpleWalletClient(userId);
+    var client = new PbftWalletClient(userId);
     client.transfer(beneficiary, amount);    
     res.send({ message:"Amount "+ amount +" successfully added to " + beneficiary});
 });
 
 router.post('/balance', function(req, res){
     var userId = req.body.userId;
-    var client = new SimpleWalletClient(userId);
+    var client = new PbftWalletClient(userId);
     var getYourBalance = client.balance();
     console.log(getYourBalance);
     getYourBalance.then(result => {res.send({ balance: result, message:"Amount " + result + " available"});});

@@ -16,8 +16,14 @@ const address = process.argv[2]
 
 const transactionProcessor = new TransactionProcessor(address);
 
+//addHandler can receive transaction processing requests. All handlers 
+//must be added prior to starting the processor.
 transactionProcessor.addHandler(new pbftWalletHandler());
 
+//start connects the transaction processor to a validator and starts 
+//listening for requests and routing them to an appropriate handler.
 transactionProcessor.start()
+
+console.log('address = process.argv[2]: '+ address);
 
 console.log('Started transaction processor');

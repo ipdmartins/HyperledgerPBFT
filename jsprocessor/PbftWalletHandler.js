@@ -1,7 +1,7 @@
 const { TransactionHandler } = require('sawtooth-sdk/processor/handler');
 const { InvalidTransaction, InternalError } = require('sawtooth-sdk/processor/exceptions')
 
-const {SW_FAMILY, SW_NAMESPACE, SW_VERSION, hash} = require('../env')
+const { SW_FAMILY, SW_NAMESPACE, SW_VERSION, hash } = require('../env')
 
 const MIN_VALUE = 0;
 
@@ -10,13 +10,14 @@ function encoder(word) {
 }
 
 function decoder(word) {
-  return atob(word);  
+  return atob(word);
 }
 
 //function to obtain the payload obtained from the client
 const _decodeRequest = (payload) =>
   new Promise((resolve, reject) => {
     payload = payload.toString().split(',')
+    console.log('payload: ' + payload)
     if (payload.length === 2) {
       resolve({
         action: payload[0],
@@ -36,29 +37,35 @@ const _decodeRequest = (payload) =>
 
 //function to display the errors
 const _toInternalError = (err) => {
-  console.log(" in error message block")
+  console.log("in error message block")
   let message = err.message ? err.message : err
   throw new InternalError(message)
 }
 
 //function to set the entries in the block using the "SetState" function
 const _setEntry = (context, address, stateValue) => {
+  console.log('stateValue: ' + stateValue)
   let dataBytes = encoder(stateValue);
+  console.log('dataBytes: ' + dataBytes)
   let entries = {
     [address]: dataBytes
   }
+  console.log('entries: ' + entries)
   return context.setState(entries);
 }
 
 //function to make a transfer transaction
 const makeTransfer = (context, senderAddress, amount, receiverAddress) => (possibleAddressValues) => {
+  console.log('amount: ' + amount)
   if (amount <= MIN_VALUE) {
     throw new InvalidTransaction('Amount is invalid')
   }
 
   let senderBalance;
   let currentEntry = possibleAddressValues[senderAddress];
+  console.log('currentEntry senderAddress: ' + currentEntry)
   let currentEntryTo = possibleAddressValues[receiverAddress];
+  console.log('currentEntryTo receiverAddress: ' + currentEntryTo)
   let senderNewBalance = 0;
   let receiverBalance;
   let receiverNewBalance = 0;
@@ -72,17 +79,23 @@ const makeTransfer = (context, senderAddress, amount, receiverAddress) => (possi
   }
 
   senderBalance = decoder(currentEntry);
+  console.log('senderBalance = decoder(currentEntry): ' + senderBalance)
   senderBalance = parseInt(senderBalance);
+  console.log('senderBalance = parseInt(senderBalance): ' + senderBalance)
   receiverBalance = decoder(currentEntryTo);
+  console.log('receiverBalance = decoder(currentEntryTo): ' + receiverBalance)
   receiverBalance = parseInt(receiverBalance)
+  console.log('receiverBalance = parseInt(receiverBalance): ' + receiverBalance)
 
   if (senderBalance < amount) {
-    throw new InvalidTransaction("Not eno ugh money to perform transfer operation")
+    throw new InvalidTransaction("Not enough money to perform transfer operation")
   } else {
     console.log("Debiting amount from the sender:" + amount);
     senderNewBalance = senderBalance - amount;
     receiverNewBalance = receiverBalance + amount;
     let stateData = senderNewBalance.toString()
+    console.log('stateData senderNewBalance: ' + stateData)
+    console.log('context: ' + context)
     _setEntry(context, senderAddress, stateData);
     stateData = receiverNewBalance.toString();
     console.log("Sender balance:" + senderNewBalance + ", Reciever balance:" + receiverNewBalance)
@@ -98,11 +111,16 @@ class PbftWalletHandler extends TransactionHandler {
   apply(transactionProcessRequest, context) {
     // const senderAddress = SW_NAMESPACE + _hash(userPublicKey).substr(0, 64);
 
+    console.log('transactionProcessRequest: ' + transactionProcessRequest)
+    console.log('context into apply: ' + context)
     return _decodeRequest(transactionProcessRequest.payload)
       .catch(_toInternalError)
       .then((update) => {
+        console.log('update into apply: ' + update)
         let header = transactionProcessRequest.header
+        console.log('header into apply: ' + header)
         let userPublicKey = header.signerPublicKey
+        console.log('userPublicKey into apply: ' + userPublicKey)
 
         if (!update.action) {
           throw new InvalidTransaction('Action is required')
@@ -117,21 +135,24 @@ class PbftWalletHandler extends TransactionHandler {
         if (typeof amount !== "number" || amount <= MIN_VALUE) {
           throw new InvalidTransaction(`Value must be an integer ` + `no less than 1`)
         }
-        
+
         // Select the action to be performed
         let actionFn
         if (update.action === 'transfer') {
           actionFn = makeTransfer
         } else if (update.action === 'balance') {
           actionFn = showBalance //?????
+          console.log('actionFn = showBalance //????: ' + actionFn)
         }
         else {
           throw new InvalidTransaction(`Action must be create or take not ${update.action}`)
         }
 
         let senderAddress = SW_NAMESPACE + hash(userPublicKey).slice(-64)
-        
-        // this is the key obtained for the beneficiary in the payload , used only during transfer function
+        console.log('senderAddress into appy' + senderAddress)
+
+        // this is the key obtained for the beneficiary in the payload , used only during 
+        //transfer function
         let beneficiaryKey = update.toKey
         let receiverAddress
         if (beneficiaryKey != undefined) {
@@ -140,13 +161,20 @@ class PbftWalletHandler extends TransactionHandler {
 
         // Get the current state, for the key's address:
         let getPromise
-        if (update.action == 'transfer')
+        console.log(' into appy')
+        if (update.action == 'transfer') {
           getPromise = context.getState([senderAddress, receiverAddress])
-        else
+          console.log('getPromise into appy: ' + getPromise)
+        } else {
           getPromise = context.getState([senderAddress])
+          console.log('getPromise into appy: ' + getPromise)
+        }
+
         let actionPromise = getPromise.then(
           actionFn(context, senderAddress, amount, receiverAddress)
-        )
+          )
+        console.log('actionPromise into appy' + actionPromise)
+        
         return actionPromise.then(addresses => {
           if (addresses.length === 0) {
             throw new InternalError('State Error!')
