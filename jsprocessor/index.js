@@ -8,11 +8,8 @@ if (process.argv.length < 3) {
     process.exit(1)
   }
 
-// In docker, the address would be the validator's container name
-// with port 4004
-// const address = process.env.ADDRESS || 'tcp://127.0.0.1:4004'; //'tcp://localhost:4004'
-
-const address = process.argv[2]
+// In docker, the address would be the validator's container name with port 4004
+const address = process.argv[2] || 'tcp://127.0.0.1:4004'; //'tcp://localhost:4004'
 
 const transactionProcessor = new TransactionProcessor(address);
 

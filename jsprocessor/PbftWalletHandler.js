@@ -57,6 +57,25 @@ const _setEntry = (context, address, stateValue) => {
   return context.setState(entries);
 }
 
+//function to make a deposit transaction
+const makeDeposit = (context, address, amount, user) => (possibleAddressValues) => {
+  let stateValueRep = possibleAddressValues[address]
+  console.log('stateValueRep: ' + stateValueRep)
+  let newBalance = 0
+  let balance
+  if (stateValueRep == null || stateValueRep == '') {
+    console.log("No previous deposits, creating new deposit")
+    newBalance = amount
+    console.log('newBalance: ' + newBalance)
+  } else {
+    balance = decoder.decode(stateValueRep)
+    newBalance = parseInt(balance) + amount
+    console.log("Amount crediting:" + newBalance)
+  }
+  let strNewBalance = newBalance.toString()
+  return _setEntry(context, address, strNewBalance)
+}
+
 //function to make a transfer transaction
 const makeTransfer = (context, senderAddress, amount, receiverAddress) => (possibleAddressValues) => {
   console.log('amount: ' + amount)
@@ -141,13 +160,14 @@ class PbftWalletHandler extends TransactionHandler {
 
         // Select the action to be performed
         let actionFn
-        if (update.action === 'transfer') {
+        if (update.action === 'deposit') {
+          actionFn = makeDeposit
+        } else if (update.action === 'transfer') {
           actionFn = makeTransfer
         } else if (update.action === 'balance') {
           actionFn = showBalance //?????
           console.log('actionFn = showBalance //????: ' + actionFn)
-        }
-        else {
+        } else {
           throw new InvalidTransaction(`Action must be create or take not ${update.action}`)
         }
 
@@ -175,9 +195,9 @@ class PbftWalletHandler extends TransactionHandler {
 
         let actionPromise = getPromise.then(
           actionFn(context, senderAddress, amount, receiverAddress)
-          )
+        )
         console.log('actionPromise into appy' + actionPromise)
-        
+
         return actionPromise.then(addresses => {
           if (addresses.length === 0) {
             throw new InternalError('State Error!')
