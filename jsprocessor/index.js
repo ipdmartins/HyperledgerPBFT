@@ -3,10 +3,10 @@
 const { TransactionProcessor } = require('sawtooth-sdk/processor');
 const pbftWalletHandler = require('./PbftWalletHandler');
 
-if (process.argv.length < 3) {
-    console.log('missing a validator address')
-    process.exit(1)
-  }
+// if (process.argv.length < 3) {
+//     console.log('missing a validator address')
+//     process.exit(1)
+// }
 
 // In docker, the address would be the validator's container name with port 4004
 const address = process.argv[2] || 'tcp://127.0.0.1:4004'; //'tcp://localhost:4004'
