@@ -6,6 +6,10 @@ var {PbftWalletClient} = require('./PbftWalletClient')
 
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
+const pbftWalletClient = new PbftWalletClient('Depositer');
+const data = { userId: pbftWalletClient.getAdrres, money: 100 }
+pbftWalletClient.deposit(data);
+
 router.get('/', function(req, res){
     res.redirect("/login");
 })

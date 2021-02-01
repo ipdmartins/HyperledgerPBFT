@@ -1,10 +1,12 @@
 
-const {createHash} = require('crypto')
 const {CryptoFactory, createContext } = require('sawtooth-sdk/signing')
+const {createHash} = require('crypto')
 const protobuf = require('sawtooth-sdk/protobuf')
 const fs = require('fs')
 const fetch = require('node-fetch');
 const {Secp256k1PrivateKey} = require('sawtooth-sdk/signing/secp256k1')	
+const cbor = require('cbor')
+const {TextEncoder, TextDecoder} = require('text-encoding/lib/encoding')
 
 const {SW_FAMILY, SW_VERSION} = require('../../env')
 
@@ -13,26 +15,34 @@ function hash(v) {
 }
 
 function encoder(word) {
-  return btoa(word);
+  return cbor.encode(word);
 }
 
 class PbftWalletClient {
     constructor(userid) {
       console.log('userid into PbftWalletClient: ' + userid)
-      const privateKeyStrBuf = this.getUserPriKey(userid);
-      console.log('privateKeyStrBuf into PbftWalletClient: ' + privateKeyStrBuf)
-      const privateKeyStr = privateKeyStrBuf.toString().trim();
-      console.log('privateKeyStr into PbftWalletClient: ' + privateKeyStr)
+      // const privateKeyStrBuf = this.getUserPriKey(userid);
+      // console.log('privateKeyStrBuf into PbftWalletClient: ' + privateKeyStrBuf)
+      // const privateKeyStr = privateKeyStrBuf.toString().trim();
+      // console.log('privateKeyStr into PbftWalletClient: ' + privateKeyStr)
       const context = createContext('secp256k1');
-      console.log('context into PbftWalletClient: ' + context)
-      const privateKey = Secp256k1PrivateKey.fromHex(privateKeyStr);
+      // console.log('context into PbftWalletClient: ' + context)
+      const privateKey = context.newRandomPrivateKey();
       console.log('privateKey into PbftWalletClient: ' + privateKey)
       this.signer = new CryptoFactory(context).newSigner(privateKey);
-      console.log('signer into PbftWalletClient: ' + signer)
+      // console.log('signer into PbftWalletClient: ' + signer)
       this.publicKey = this.signer.getPublicKey().asHex();
       console.log('this.publicKey into PbftWalletClient: ' + this.publicKey)
       this.address = hash("simplewallet").substr(0, 6) + hash(this.publicKey).substr(0, 64);
       console.log("Storing at: " + this.address);
+    }
+
+    getAdrres(){
+      return this.address;
+    }
+    
+    deposit(amount) {
+      this._wrap_and_send("deposit", [amount]);
     }
     
     balance() {
@@ -83,9 +93,10 @@ class PbftWalletClient {
         console.log('payload into PbftWalletClient: ' + payload)
       }	
       
-      const payloadBytes = encoder(payload);
+      var enc = new TextEncoder('utf8');
+      const payloadBytes = enc.encode(payload);
       console.log('payloadBytes into PbftWalletClient: ' + payloadBytes)
-      const transactionHeaderBytes = protobuf.TransactionHeader.encoder({
+      const transactionHeaderBytes = protobuf.TransactionHeader.encode({
         familyName: SW_FAMILY,
         familyVersion: SW_VERSION,
         inputs: inputAddressList,
@@ -106,7 +117,7 @@ class PbftWalletClient {
       
       const transactions = [transaction];
       console.log('transactions into PbftWalletClient: ' + transactions)
-      const batchHeaderBytes = protobuf.BatchHeader.encoder({
+      const batchHeaderBytes = protobuf.BatchHeader.encode({
         signerPublicKey: this.signer.getPublicKey().asHex(),
         transactionIds: transactions.map((txn) => txn.headerSignature),
       }).finish();
@@ -121,11 +132,11 @@ class PbftWalletClient {
       });
       console.log('batch into PbftWalletClient: ' + batch)
       
-      const batchListBytes = protobuf.BatchList.encoder({
+      const batchListBytes = protobuf.BatchList.encode({
         batches: [batch]
       }).finish();
       this._send_to_rest_api(batchListBytes);	
-      console.log('batchListBytes into PbftWalletClient: ' + batchListBytes)
+      console.log('batchListBytes into PbftWalletClient: ' + batchListBytes.toString())
     }
     
     _send_to_rest_api(batchListBytes){
